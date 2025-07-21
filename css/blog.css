@@ -1,0 +1,51 @@
+/* ===== BLOG PAGE STYLES ===== */
+
+/* Blog Post Items */
+.blog-item {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Blog specific research cards */
+.blog-page .research-card {
+    border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.blog-page .research-card:hover {
+    border-bottom-color: rgba(139, 92, 246, 0.8);
+}
+
+/* Blog category styling */
+.blog-category {
+    background: rgba(139, 92, 246, 0.2);
+    color: rgba(139, 92, 246, 1);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Blog date styling */
+.blog-date {
+    color: rgba(148, 163, 184, 0.8);
+    font-size: 0.875rem;
+}
+
+/* Blog excerpt styling */
+.blog-excerpt {
+    color: rgba(203, 213, 225, 0.9);
+    line-height: 1.6;
+}
+
+/* Read more button */
+.read-more-btn {
+    color: rgba(139, 92, 246, 1);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.read-more-btn:hover {
+    color: rgba(139, 92, 246, 0.8);
+    text-decoration: underline;
+}

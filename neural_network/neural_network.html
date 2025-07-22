@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x0a0a0a);
+        document.body.appendChild(renderer.domElement);
+
+        // Manual camera controls
+        let mouseX = 0, mouseY = 0;
+        let isMouseDown = false;
+        let cameraAngleX = 0, cameraAngleY = 0;
+        const cameraDistance = 35;
+
+        // Mouse event listeners for manual camera control
+        renderer.domElement.addEventListener('mousedown', (event) => {
+            isMouseDown = true;
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+        });
+
+        renderer.domElement.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+
+        renderer.domElement.addEventListener('mousemove', (event) => {
+            if (isMouseDown) {
+                const deltaX = event.clientX - mouseX;
+                const deltaY = event.clientY - mouseY;
+                
+                cameraAngleX += deltaX * 0.01;
+                cameraAngleY += deltaY * 0.01;
+                cameraAngleY = Math.max(-Math.PI/2, Math.min(Math.PI/2, cameraAngleY));
+                
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+            }
+        });
+
+        // Zoom with mouse wheel
+        renderer.domElement.addEventListener('wheel', (event) => {
+            event.preventDefault();
+            const zoomFactor = event.deltaY > 0 ? 1.1 : 0.9;
+            camera.position.multiplyScalar(zoomFactor);
+        });
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(15, 15, 10);
+        scene.add(directionalLight);
+        
+        // Add subtle colored accent lights
+        const accentLight1 = new THREE.PointLight(0x00ffff, 0.3, 50);
+        accentLight1.position.set(-20, 10, 10);
+        scene.add(accentLight1);
+        
+        const accentLight2 = new THREE.PointLight(0xff6b9d, 0.3, 50);
+        accentLight2.position.set(20, -5, 10);
+        scene.add(accentLight2);
+
+        // Network configuration - Made much larger to fill most of the screen
+        const networkConfig = [
+            { name: 'Input Layer', nodes: 4, color: 0x4CAF50, position: -35 },
+            { name: 'Hidden Layer 1', nodes: 6, color: 0xFF9800, position: -12 },
+            { name: 'Hidden Layer 2', nodes: 5, color: 0xFF5722, position: 12 },
+            { name: 'Output Layer', nodes: 3, color: 0xE91E63, position: 35 }
+        ];
+
+        const layers = [];
+        const connections = [];
+        const signals = [];
+        const activationQueue = [];
+        const backgroundParticles = [];
+        const pulseRings = [];
+        let time = 0;
+        let propagationCycle = 0;
+
+        // Create network layers
+        function createNetwork() {
+            networkConfig.forEach((layerConfig, layerIndex) => {
+                const layer = {
+                    nodes: [],
+                    config: layerConfig,
+                    index: layerIndex
+                };
+
+                // Calculate node positions in a vertical line - much larger spacing
+                const spacing = 6.5;
+                const totalHeight = (layerConfig.nodes - 1) * spacing;
+                const startY = totalHeight / 2;
+
+                for (let i = 0; i < layerConfig.nodes; i++) {
+                    // Create node - extra large size
+                    const geometry = new THREE.SphereGeometry(1.5, 32, 24);
+                    const material = new THREE.MeshStandardMaterial({
+                        color: layerConfig.color,
+                        emissive: 0x000000,
+                        transparent: true,
+                        opacity: 0.8,
+                        metalness: 0.1,
+                        roughness: 0.3
+                    });
+                    
+                    const node = new THREE.Mesh(geometry, material);
+                    node.position.set(
+                        layerConfig.position,
+                        startY - (i * spacing),
+                        0
+                    );
+                    
+                    scene.add(node);
+                    
+                    // Add node label/outline
+                    const outlineGeometry = new THREE.SphereGeometry(1.6, 32, 24);
+                    const outlineMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xffffff,
+                        transparent: true,
+                        opacity: 0.1,
+                        side: THREE.BackSide
+                    });
+                    const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+                    outline.position.copy(node.position);
+                    scene.add(outline);
+                    
+                    layer.nodes.push({
+                        mesh: node,
+                        outline: outline,
+                        activation: 0,
+                        targetActivation: 0,
+                        position: node.position.clone(),
+                        layerIndex: layerIndex,
+                        nodeIndex: i
+                    });
+                }
+
+                layers.push(layer);
+            });
+        }
+
+        // Create subtle background particles
+        function createBackgroundParticles() {
+            for (let i = 0; i < 80; i++) {
+                const geometry = new THREE.SphereGeometry(0.05, 8, 6);
+                const material = new THREE.MeshBasicMaterial({
+                    color: 0x444444,
+                    transparent: true,
+                    opacity: 0.1
+                });
+                
+                const particle = new THREE.Mesh(geometry, material);
+                particle.position.set(
+                    (Math.random() - 0.5) * 120,
+                    (Math.random() - 0.5) * 80,
+                    (Math.random() - 0.5) * 100
+                );
+                
+                scene.add(particle);
+                backgroundParticles.push({
+                    mesh: particle,
+                    velocity: new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.02,
+                        (Math.random() - 0.5) * 0.02,
+                        (Math.random() - 0.5) * 0.02
+                    ),
+                    originalOpacity: 0.1 + Math.random() * 0.1
+                });
+            }
+        }
+
+        // Create pulse rings around active nodes
+        function createPulseRing(node) {
+            const ringGeometry = new THREE.RingGeometry(1.8, 2.2, 16);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: node.mesh.material.color,
+                transparent: true,
+                opacity: 0.6,
+                side: THREE.DoubleSide
+            });
+            
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.position.copy(node.position);
+            ring.lookAt(new THREE.Vector3(0, 0, 1));
+            scene.add(ring);
+            
+            pulseRings.push({
+                mesh: ring,
+                scale: 1,
+                opacity: 0.6,
+                maxScale: 2.5,
+                node: node
+            });
+        }
+
+        // Add subtle grid lines in the background
+        function createBackgroundGrid() {
+            const gridHelper = new THREE.GridHelper(80, 20, 0x333333, 0x222222);
+            gridHelper.position.y = -25;
+            gridHelper.material.opacity = 0.2;
+            gridHelper.material.transparent = true;
+            scene.add(gridHelper);
+            
+            // Add vertical grid
+            const gridHelper2 = new THREE.GridHelper(80, 20, 0x333333, 0x222222);
+            gridHelper2.rotation.x = Math.PI / 2;
+            gridHelper2.position.z = -25;
+            gridHelper2.material.opacity = 0.15;
+            gridHelper2.material.transparent = true;
+            scene.add(gridHelper2);
+        }
+
+        // Create connections between layers
+        function createConnections() {
+            for (let l = 0; l < layers.length - 1; l++) {
+                const currentLayer = layers[l];
+                const nextLayer = layers[l + 1];
+                
+                currentLayer.nodes.forEach((fromNode, fromIndex) => {
+                    nextLayer.nodes.forEach((toNode, toIndex) => {
+                        // Create connection line
+                        const geometry = new THREE.BufferGeometry();
+                        const points = [fromNode.position, toNode.position];
+                        geometry.setFromPoints(points);
+                        
+                        const material = new THREE.LineBasicMaterial({
+                            color: 0x444444,
+                            transparent: true,
+                            opacity: 0.15,
+                            linewidth: 2
+                        });
+                        
+                        const line = new THREE.Line(geometry, material);
+                        scene.add(line);
+                        
+                        connections.push({
+                            line: line,
+                            from: fromNode,
+                            to: toNode,
+                            fromLayer: l,
+                            toLayer: l + 1,
+                            weight: (Math.random() - 0.5) * 2, // Random weight between -1 and 1
+                            active: false,
+                            signal: 0
+                        });
+                    });
+                });
+            }
+        }
+
+        // Create signal particles with consistent timing
+        function createSignal(fromNode, toNode, value, delay = 0) {
+            setTimeout(() => {
+                const geometry = new THREE.SphereGeometry(0.4, 20, 16);
+                const material = new THREE.MeshBasicMaterial({
+                    color: value > 0 ? 0x00ffff : 0xff4444,
+                    transparent: true,
+                    opacity: 1,
+                    emissive: value > 0 ? 0x003333 : 0x330000
+                });
+                
+                const signal = new THREE.Mesh(geometry, material);
+                signal.position.copy(fromNode.position);
+                scene.add(signal);
+                
+                // Add glow effect
+                const glowGeometry = new THREE.SphereGeometry(0.55, 20, 16);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: value > 0 ? 0x00ffff : 0xff4444,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                glow.position.copy(fromNode.position);
+                scene.add(glow);
+                
+                signals.push({
+                    mesh: signal,
+                    glow: glow,
+                    startPos: fromNode.position.clone(),
+                    endPos: toNode.position.clone(),
+                    progress: 0,
+                    speed: 0.025,
+                    value: Math.abs(value),
+                    active: true,
+                    toNode: toNode
+                });
+            }, delay);
+        }
+
+        // Improved forward propagation with consistent timing
+        function forwardPropagation() {
+            // Clear previous activations except input layer
+            for (let l = 1; l < layers.length; l++) {
+                layers[l].nodes.forEach(node => {
+                    node.targetActivation = 0;
+                });
+            }
+
+            // Set random input layer activations
+            layers[0].nodes.forEach(node => {
+                node.targetActivation = Math.random() * 0.8 + 0.2; // Between 0.2 and 1.0
+            });
+
+            // Process each layer sequentially with proper timing
+            for (let l = 0; l < layers.length - 1; l++) {
+                setTimeout(() => {
+                    processLayer(l);
+                }, l * 800); // 800ms delay between layers
+            }
+        }
+
+        function processLayer(layerIndex) {
+            const currentLayer = layers[layerIndex];
+            const nextLayer = layers[layerIndex + 1];
+
+            // Calculate activations for next layer
+            nextLayer.nodes.forEach((toNode, toIndex) => {
+                let weightedSum = 0;
+                let signalCount = 0;
+
+                currentLayer.nodes.forEach((fromNode, fromIndex) => {
+                    if (fromNode.activation > 0.1) { // Only if source node is active enough
+                        const connection = connections.find(conn => 
+                            conn.from === fromNode && conn.to === toNode
+                        );
+                        
+                        if (connection) {
+                            const signalValue = fromNode.activation * connection.weight;
+                            weightedSum += signalValue;
+                            
+                            // Create visual signal with slight random delay for organic feel
+                            const delay = Math.random() * 200;
+                            createSignal(fromNode, toNode, signalValue, delay);
+                            signalCount++;
+                        }
+                    }
+                });
+
+                // Apply activation function (ReLU-like with sigmoid scaling)
+                const rawActivation = Math.max(0, weightedSum + 0.1);
+                toNode.targetActivation = Math.min(1, 1 / (1 + Math.exp(-rawActivation * 2)));
+                
+                // Schedule activation update after signals arrive
+                setTimeout(() => {
+                    toNode.targetActivation = toNode.targetActivation;
+                }, 400);
+            });
+        }
+
+        // Update animations
+        function updateAnimations() {
+            // Update node activations with smooth transitions
+            layers.forEach(layer => {
+                layer.nodes.forEach(node => {
+                    node.activation += (node.targetActivation - node.activation) * 0.08;
+                    
+                    // Update visual appearance based on activation
+                    const intensity = node.activation;
+                    const baseColor = new THREE.Color(layer.config.color);
+                    
+                    // Scale and glow effects
+                    node.mesh.scale.setScalar(0.8 + intensity * 0.5);
+                    node.mesh.material.emissive.setHex(intensity > 0.15 ? 0x222222 : 0x000000);
+                    node.mesh.material.opacity = 0.7 + intensity * 0.3;
+                    
+                    // Create pulse ring for highly active nodes
+                    if (intensity > 0.6 && Math.random() > 0.95) {
+                        createPulseRing(node);
+                    }
+                    
+                    // Outline effect
+                    node.outline.material.opacity = intensity * 0.3;
+                    
+                    // Color variation based on activation
+                    node.mesh.material.color.lerpColors(baseColor, new THREE.Color(0xffffff), intensity * 0.3);
+                });
+            });
+
+            // Update connection activations
+            connections.forEach(connection => {
+                const fromActivation = connection.from.activation;
+                const toActivation = connection.to.activation;
+                const activity = Math.min(fromActivation * 0.7, toActivation);
+                
+                connection.line.material.opacity = 0.1 + activity * 0.4;
+                const connectionColor = activity > 0.3 ? 0x00aaff : 0x333333;
+                connection.line.material.color.setHex(connectionColor);
+            });
+
+            // Update signals with smooth movement
+            signals.forEach((signal, index) => {
+                if (signal.active) {
+                    signal.progress += signal.speed;
+                    
+                    // Smooth signal movement
+                    signal.mesh.position.lerpVectors(
+                        signal.startPos,
+                        signal.endPos,
+                        signal.progress
+                    );
+                    signal.glow.position.copy(signal.mesh.position);
+                    
+                    // Fade out as it approaches destination
+                    const fadeStart = 0.8;
+                    if (signal.progress > fadeStart) {
+                        const fadeProgress = (signal.progress - fadeStart) / (1 - fadeStart);
+                        signal.mesh.material.opacity = 1 - fadeProgress;
+                        signal.glow.material.opacity = 0.3 * (1 - fadeProgress);
+                    }
+                    
+                    // Remove signal when it reaches destination
+                    if (signal.progress >= 1) {
+                        scene.remove(signal.mesh);
+                        scene.remove(signal.glow);
+                        signal.active = false;
+                        
+                        // Trigger activation in target node
+                        signal.toNode.targetActivation = Math.max(signal.toNode.targetActivation, signal.value);
+                    }
+                }
+            });
+
+            // Remove inactive signals
+            for (let i = signals.length - 1; i >= 0; i--) {
+                if (!signals[i].active) {
+                    signals.splice(i, 1);
+                }
+            }
+
+            // Update background particles
+            backgroundParticles.forEach(particle => {
+                particle.mesh.position.add(particle.velocity);
+                
+                // Wrap around screen boundaries
+                if (particle.mesh.position.x > 60) particle.mesh.position.x = -60;
+                if (particle.mesh.position.x < -60) particle.mesh.position.x = 60;
+                if (particle.mesh.position.y > 40) particle.mesh.position.y = -40;
+                if (particle.mesh.position.y < -40) particle.mesh.position.y = 40;
+                if (particle.mesh.position.z > 50) particle.mesh.position.z = -50;
+                if (particle.mesh.position.z < -50) particle.mesh.position.z = 50;
+                
+                // Subtle opacity animation
+                particle.mesh.material.opacity = particle.originalOpacity + 
+                    Math.sin(time * 2 + particle.mesh.position.x * 0.1) * 0.05;
+            });
+
+            // Update pulse rings
+            pulseRings.forEach((ring, index) => {
+                ring.scale += 0.02;
+                ring.opacity -= 0.015;
+                
+                ring.mesh.scale.setScalar(ring.scale);
+                ring.mesh.material.opacity = ring.opacity;
+                
+                if (ring.opacity <= 0 || ring.scale >= ring.maxScale) {
+                    scene.remove(ring.mesh);
+                    pulseRings.splice(index, 1);
+                }
+            });
+        }
+
+        // Initialize network
+        createNetwork();
+        createConnections();
+        createBackgroundParticles();
+        createBackgroundGrid();
+
+        // Set camera position - much closer for larger appearance
+        camera.position.set(20, 8, 25);
+        camera.lookAt(0, 0, 0);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.016;
+
+            // Trigger forward propagation every 4 seconds for better visibility
+            if (Math.floor(time * 4) % 16 === 0 && Math.floor(time * 60) % 15 === 0) {
+                propagationCycle++;
+                forwardPropagation();
+            }
+
+            updateAnimations();
+            
+            // Update camera position based on mouse controls
+            const x = Math.cos(cameraAngleX) * Math.cos(cameraAngleY) * cameraDistance;
+            const y = Math.sin(cameraAngleY) * cameraDistance;
+            const z = Math.sin(cameraAngleX) * Math.cos(cameraAngleY) * cameraDistance;
+            
+            camera.position.set(x, y, z);
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start the animation
+        animate();
+
+        // Initial forward propagation after a short delay
+        setTimeout(() => {
+            forwardPropagation();
+        }, 1500);
+    </script>
+</body>
+</html>

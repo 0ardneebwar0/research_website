@@ -1,0 +1,32 @@
+https://www.sliderrevolution.com/resources/css-hover-effects/:
+
+#1193 – Image & title with icons on hover
+
+Glowing Icon Hover Effect
+
+Direction-aware 3D hover effect (Concept)
+
+#1107 – Image with slide up title on hover
+
+Clip Path Hover Animation – Keyboard accessible
+
+Article News Card
+
+
+
+
+
+https://prismic.io/blog/css-hover-effects:
+
+11. Profile card hover
+
+17. Interactive close button
+
+19. CSS social tiles
+
+25. Desktop menu animation
+
+
+
+https://freefrontend.com/css-parallax/:
+

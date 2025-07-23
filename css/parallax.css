@@ -3,6 +3,119 @@
 /* Base parallax setup */
 .parallax-page {
     overflow-x: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: white;
+    min-height: 100vh;
+}
+
+/* Scroll Progress Bar */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    z-index: 1001;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    width: 0%;
+    transition: width 0.1s ease;
+}
+
+/* Navigation Styles */
+.parallax-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ai-research-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    border-radius: 25px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.nepal-flag {
+    width: 20px;
+    height: 15px;
+    background: linear-gradient(45deg, #dc143c, #003893);
+    border-radius: 2px;
+}
+
+.tech-font {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: white;
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: white;
+    background: rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+.application-glow {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white !important;
+    box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+    }
+    50% {
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+    }
 }
 
 .parallax-section {
@@ -17,15 +130,17 @@
 /* Enhanced parallax layers */
 .parallax-bg-layer {
     position: absolute;
-    top: -10%;
+    top: -20%;
     left: -10%;
     width: 120%;
-    height: 120%;
+    height: 140%;
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
+    background-repeat: no-repeat;
     will-change: transform;
     z-index: 1;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .parallax-content {
@@ -44,12 +159,25 @@
     display: flex;
     align-items: center;
     position: relative;
+    padding-top: 80px; /* Account for fixed nav */
 }
 
 .hero-enhanced .parallax-bg-layer {
-    background-image: url('../assets/background_1.png');
-    opacity: 0.15;
-    filter: blur(1px);
+    background-image: url('../assets/background_removed/beautiful-scenery-bg_removed.png');
+    opacity: 0.3;
+    filter: blur(0.5px);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero-content-enhanced {
+    display: flex;
+    align-items: center;
+    min-height: 80vh;
+    width: 100%;
+    position: relative;
+    z-index: 10;
 }
 
 .hero-image-container {
@@ -86,6 +214,8 @@
     flex: 1;
     max-width: 60%;
     padding-right: 2rem;
+    position: relative;
+    z-index: 15;
 }
 
 .parallax-title-enhanced {
@@ -96,12 +226,27 @@
     font-family: 'Inter', sans-serif;
 }
 
+.gradient-text {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+}
+
 .parallax-subtitle-enhanced {
     font-size: clamp(1.2rem, 3vw, 1.8rem);
     color: rgba(255, 255, 255, 0.8);
     margin-bottom: 3rem;
     line-height: 1.6;
     max-width: 500px;
+}
+
+.section-description {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 2rem;
 }
 
 .parallax-cta-enhanced {
@@ -117,8 +262,11 @@
 }
 
 .research-enhanced .parallax-bg-layer {
-    background-image: url('../assets/background_2.jpg');
-    opacity: 0.2;
+    background-image: url('../assets/background_removed/Leonardo_Vision_XL_bg_removed.png');
+    opacity: 0.25;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .research-image-container {
@@ -218,8 +366,11 @@
 }
 
 .vision-enhanced .parallax-bg-layer {
-    background-image: url('../assets/dark_theme_background.jpg');
-    opacity: 0.25;
+    background-image: url('../assets/background_removed/bg_cover_bg_removed.png');
+    opacity: 0.2;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .vision-image-container {
@@ -340,8 +491,11 @@
 }
 
 .cta-enhanced .parallax-bg-layer {
-    background-image: url('../assets/background_1.png');
-    opacity: 0.1;
+    background-image: url('../assets/background_removed/beautiful-scenery-bg_removed.png');
+    opacity: 0.15;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .cta-content-enhanced {
@@ -739,8 +893,8 @@ html {
 
 /* Loading States */
 .parallax-section:not(.loaded) {
-    opacity: 0;
-    transform: translateY(50px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.8s ease;
 }
 
@@ -753,9 +907,8 @@ html {
 .hero-main-image,
 .research-side-image,
 .vision-accent-image {
-    opacity: 0;
-    animation: imageLoad 1s ease forwards;
-    animation-delay: 0.5s;
+    opacity: 1;
+    animation: none;
 }
 
 @keyframes imageLoad {
@@ -794,7 +947,7 @@ html {
 }
 
 .research-parallax .parallax-layer {
-    background-image: url('../assets/background_2.jpg');
+    background-image: url('../assets/background_removed/Leonardo_Vision_XL_bg_removed.png');
     opacity: 0.2;
 }
 
@@ -862,7 +1015,7 @@ html {
 }
 
 .vision-parallax .parallax-layer {
-    background-image: url('../assets/dark_theme_background.jpg');
+    background-image: url('../assets/background_removed/bg_cover_bg_removed.png');
     opacity: 0.3;
 }
 
@@ -997,7 +1150,7 @@ html {
 }
 
 .cta-parallax .parallax-layer {
-    background-image: url('../assets/background_1.png');
+    background-image: url('../assets/background_removed/beautiful-scenery-bg_removed.png');
     opacity: 0.2;
 }
 
@@ -1275,15 +1428,182 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Cursor Effects Enhancement for Parallax */
-.parallax-page .cursor-glow {
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
-    width: 200px;
-    height: 200px;
+/* Mobile Navigation */
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 1rem;
+    }
+    
+    .nav-links {
+        gap: 1rem;
+    }
+    
+    .nav-link {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .tech-font {
+        font-size: 1rem;
+    }
+    
+    .ai-research-chip {
+        padding: 0.4rem 0.8rem;
+        gap: 0.5rem;
+    }
 }
 
-.parallax-page .cursor-trail {
-    background: linear-gradient(45deg, #3b82f6, #8b5cf6);
-    width: 8px;
-    height: 8px;
+@media (max-width: 480px) {
+    .nav-links {
+        display: none; /* You might want to add a hamburger menu here */
+    }
+    
+    .tech-font {
+        font-size: 0.9rem;
+    }
+}
+
+/* Enhanced Mobile Responsive Design */
+@media (max-width: 992px) {
+    .hero-image-container {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        margin-top: 2rem;
+        text-align: center;
+    }
+    
+    .hero-content-enhanced {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .content-left {
+        max-width: 100%;
+        padding-right: 0;
+    }
+    
+    .research-content-grid {
+        flex-direction: column;
+        gap: 3rem;
+    }
+    
+    .research-image-container {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        text-align: center;
+    }
+    
+    .research-text-section {
+        max-width: 100%;
+        padding-left: 0;
+        text-align: center;
+    }
+    
+    .vision-image-container {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        transform: none;
+        text-align: center;
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .parallax-title-enhanced {
+        font-size: clamp(2rem, 6vw, 3.5rem);
+    }
+    
+    .parallax-subtitle-enhanced {
+        font-size: clamp(1rem, 4vw, 1.4rem);
+    }
+    
+    .section-title-enhanced,
+    .section-title-vision,
+    .cta-title-enhanced {
+        font-size: clamp(2rem, 6vw, 3rem);
+    }
+    
+    .hero-main-image,
+    .research-side-image,
+    .vision-accent-image {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .vision-stats {
+        gap: 2rem;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+    }
+    
+    .research-cards-enhanced {
+        gap: 1rem;
+    }
+    
+    .research-card-minimal {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .card-icon-minimal {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .cta-buttons-enhanced {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .cta-features {
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .parallax-cta-enhanced {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .cta-button,
+    .cta-button-enhanced {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .parallax-content {
+        padding: 0 1rem;
+    }
+    
+    .vision-features {
+        gap: 1rem;
+    }
+    
+    .feature-highlight {
+        padding: 0.8rem 1rem;
+    }
+    
+    .research-card-minimal {
+        padding: 1rem;
+    }
+    
+    .cta-button-enhanced {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
 }

@@ -1,6 +1,16 @@
 // Enhanced Parallax Effect JavaScript
 document.addEventListener('DOMContentLoaded', function() {
     
+    // Ensure content is visible immediately
+    document.body.style.opacity = '1';
+    document.body.classList.add('loaded');
+    
+    // Check if GSAP is loaded
+    if (typeof gsap === 'undefined') {
+        console.warn('GSAP not loaded, using fallback animations');
+        return;
+    }
+    
     // Initialize GSAP ScrollTrigger
     gsap.registerPlugin(ScrollTrigger);
     
@@ -8,49 +18,47 @@ document.addEventListener('DOMContentLoaded', function() {
     let ticking = false;
     let currentScrollY = 0;
     
-    // Enhanced parallax scroll handler
+    // Simplified and smooth parallax scroll handler
     function updateParallax() {
         const scrollY = window.pageYOffset;
         currentScrollY = scrollY;
         
-        // Update background layers with different speeds
+        // Update background layers with different speeds (smoother effect)
         const bgLayers = document.querySelectorAll('.parallax-bg-layer');
-        bgLayers.forEach(layer => {
-            const speed = layer.dataset.speed || 0.5;
+        bgLayers.forEach((layer, index) => {
+            const speed = parseFloat(layer.dataset.speed) || (0.3 + index * 0.1);
             const yPos = -(scrollY * speed);
-            layer.style.transform = `translateY(${yPos}px)`;
+            layer.style.transform = `translate3d(0, ${yPos}px, 0)`;
         });
         
-        // Enhanced image containers parallax
+        // Simplified image containers parallax (removed excessive rotation)
         const heroImageContainer = document.querySelector('.hero-image-container');
         if (heroImageContainer) {
-            const speed = parseFloat(heroImageContainer.dataset.speed) || 0.6;
-            const yPos = scrollY * speed * 0.3;
-            const rotation = scrollY * 0.02;
-            heroImageContainer.style.transform = `translateY(calc(-50% + ${yPos}px)) rotate(${rotation}deg)`;
+            const speed = parseFloat(heroImageContainer.dataset.speed) || 0.4;
+            const yPos = scrollY * speed * 0.2;
+            heroImageContainer.style.transform = `translate3d(0, calc(-50% + ${yPos}px), 0)`;
         }
         
         const researchImageContainer = document.querySelector('.research-image-container');
         if (researchImageContainer) {
-            const speed = parseFloat(researchImageContainer.dataset.speed) || 0.7;
-            const yPos = scrollY * speed * 0.2;
-            researchImageContainer.style.transform = `translateY(calc(-50% + ${yPos}px))`;
+            const speed = parseFloat(researchImageContainer.dataset.speed) || 0.5;
+            const yPos = scrollY * speed * 0.15;
+            researchImageContainer.style.transform = `translate3d(0, calc(-50% + ${yPos}px), 0)`;
         }
         
         const visionImageContainer = document.querySelector('.vision-image-container');
         if (visionImageContainer) {
-            const speed = parseFloat(visionImageContainer.dataset.speed) || 0.8;
+            const speed = parseFloat(visionImageContainer.dataset.speed) || 0.6;
             const yPos = -(scrollY * speed * 0.1);
-            const rotation = scrollY * 0.01;
-            visionImageContainer.style.transform = `translateY(${yPos}px) rotate(${rotation}deg)`;
+            visionImageContainer.style.transform = `translate3d(0, ${yPos}px, 0)`;
         }
         
-        // Content parallax effects
+        // Smooth content parallax effects
         const contentLeftElements = document.querySelectorAll('.content-left');
         contentLeftElements.forEach(element => {
-            const speed = parseFloat(element.dataset.speed) || 0.8;
-            const yPos = scrollY * (1 - speed) * 0.1;
-            element.style.transform = `translateY(${yPos}px)`;
+            const speed = parseFloat(element.dataset.speed) || 0.9;
+            const yPos = scrollY * (1 - speed) * 0.05;
+            element.style.transform = `translate3d(0, ${yPos}px, 0)`;
         });
         
         // Update progress bar
@@ -87,288 +95,167 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial parallax update
     updateParallax();
     
-    // GSAP Enhanced Animations
+    // GSAP Simplified Animations (removed complex entrance effects)
     
-    // Hero section entrance animation
-    const heroTimeline = gsap.timeline();
-    heroTimeline
-        .from('.hero-main-image', {
-            duration: 1.5,
-            scale: 0.8,
-            opacity: 0,
-            rotation: -15,
-            ease: "back.out(1.7)"
-        })
-        .from('.parallax-title-enhanced span', {
-            duration: 1.2,
-            y: 100,
-            opacity: 0,
-            stagger: 0.2,
-            ease: "power3.out"
-        }, "-=1")
-        .from('.parallax-subtitle-enhanced', {
+    // Simple hero section animation
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.hero-main-image', {
             duration: 1,
-            y: 50,
+            scale: 0.9,
             opacity: 0,
-            ease: "power2.out"
-        }, "-=0.5")
-        .from('.parallax-cta-enhanced .cta-button', {
-            duration: 0.8,
+            ease: "power2.out",
+            delay: 0.3
+        });
+        
+        gsap.from('.parallax-title-enhanced', {
+            duration: 1,
             y: 30,
             opacity: 0,
+            ease: "power2.out",
+            delay: 0.1
+        });
+        
+        gsap.from('.parallax-subtitle-enhanced', {
+            duration: 1,
+            y: 20,
+            opacity: 0,
+            ease: "power2.out",
+            delay: 0.2
+        });
+        
+        gsap.from('.parallax-cta-enhanced .cta-button', {
+            duration: 0.8,
+            y: 20,
+            opacity: 0,
             stagger: 0.1,
-            ease: "back.out(1.7)"
-        }, "-=0.3");
+            ease: "power2.out",
+            delay: 0.4
+        });
+    }
     
-    // Research section animation
-    gsap.from('.research-side-image', {
-        duration: 1.2,
-        x: -100,
-        opacity: 0,
-        rotation: -10,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: '.research-enhanced',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-        }
-    });
+    // Simplified ScrollTrigger animations
+    if (typeof gsap !== 'undefined') {
+        // Research section
+        gsap.from('.research-side-image', {
+            duration: 1,
+            x: -50,
+            opacity: 0,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: '.research-enhanced',
+                start: 'top 80%',
+                toggleActions: 'play none none reverse'
+            }
+        });
+        
+        gsap.from('.section-title-enhanced', {
+            duration: 1,
+            y: 30,
+            opacity: 0,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: '.research-enhanced',
+                start: 'top 75%',
+                toggleActions: 'play none none reverse'
+            }
+        });
+        
+        gsap.from('.research-card-minimal', {
+            duration: 0.8,
+            x: 30,
+            opacity: 0,
+            stagger: 0.15,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: '.research-cards-enhanced',
+                start: 'top 85%',
+                toggleActions: 'play none none reverse'
+            }
+        });
+        
+        // Vision section
+        gsap.from('.vision-accent-image', {
+            duration: 1,
+            scale: 0.8,
+            opacity: 0,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: '.vision-enhanced',
+                start: 'top 75%',
+                toggleActions: 'play none none reverse'
+            }
+        });
+        
+        gsap.from('.section-title-vision', {
+            duration: 1,
+            y: 30,
+            opacity: 0,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: '.vision-enhanced',
+                start: 'top 80%',
+                toggleActions: 'play none none reverse'
+            }
+        });
+        
+        // CTA section
+        gsap.from('.cta-title-enhanced', {
+            duration: 1,
+            y: 30,
+            opacity: 0,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: '.cta-enhanced',
+                start: 'top 80%',
+                toggleActions: 'play none none reverse'
+            }
+        });
+    }
     
-    gsap.from('.section-title-enhanced', {
-        duration: 1,
-        scale: 0.8,
-        opacity: 0,
-        ease: "back.out(1.7)",
-        scrollTrigger: {
-            trigger: '.research-enhanced',
-            start: 'top 70%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    gsap.from('.research-card-minimal', {
-        duration: 1,
-        x: 100,
-        opacity: 0,
-        stagger: 0.2,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: '.research-cards-enhanced',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    // Vision section animations
-    gsap.from('.vision-accent-image', {
-        duration: 1.5,
-        scale: 0.5,
-        opacity: 0,
-        rotation: 20,
-        ease: "back.out(1.7)",
-        scrollTrigger: {
-            trigger: '.vision-enhanced',
-            start: 'top 70%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    gsap.from('.section-title-vision', {
-        duration: 1.2,
-        y: 80,
-        opacity: 0,
-        ease: "power3.out",
-        scrollTrigger: {
-            trigger: '.vision-enhanced',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    gsap.from('.stat-item', {
-        duration: 1,
-        y: 50,
-        opacity: 0,
-        stagger: 0.15,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: '.vision-stats',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    gsap.from('.feature-highlight', {
-        duration: 0.8,
-        x: -50,
-        opacity: 0,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: '.vision-features',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    // CTA section animation
-    gsap.from('.cta-title-enhanced', {
-        duration: 1.5,
-        scale: 0.9,
-        opacity: 0,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: '.cta-enhanced',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    gsap.from('.cta-button-enhanced', {
-        duration: 1,
-        y: 40,
-        opacity: 0,
-        stagger: 0.15,
-        ease: "back.out(1.7)",
-        scrollTrigger: {
-            trigger: '.cta-buttons-enhanced',
-            start: 'top 90%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    gsap.from('.cta-feature', {
-        duration: 0.8,
-        y: 30,
-        opacity: 0,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: '.cta-features',
-            start: 'top 90%',
-            toggleActions: 'play none none reverse'
-        }
-    });
-    
-    // Enhanced hover effects for images
+    // Simplified hover effects for images
     const heroImage = document.querySelector('.hero-main-image');
     if (heroImage) {
         heroImage.addEventListener('mouseenter', () => {
-            gsap.to(heroImage, {
-                duration: 0.6,
-                scale: 1.1,
-                rotation: 5,
-                ease: "power2.out"
-            });
+            if (typeof gsap !== 'undefined') {
+                gsap.to(heroImage, {
+                    duration: 0.3,
+                    scale: 1.05,
+                    ease: "power2.out"
+                });
+            }
         });
         
         heroImage.addEventListener('mouseleave', () => {
-            gsap.to(heroImage, {
-                duration: 0.6,
-                scale: 1,
-                rotation: 0,
-                ease: "power2.out"
-            });
+            if (typeof gsap !== 'undefined') {
+                gsap.to(heroImage, {
+                    duration: 0.3,
+                    scale: 1,
+                    ease: "power2.out"
+                });
+            }
         });
     }
     
-    const researchImage = document.querySelector('.research-side-image');
-    if (researchImage) {
-        researchImage.addEventListener('mouseenter', () => {
-            gsap.to(researchImage, {
-                duration: 0.5,
-                scale: 1.08,
-                rotation: -3,
-                ease: "power2.out"
-            });
-        });
-        
-        researchImage.addEventListener('mouseleave', () => {
-            gsap.to(researchImage, {
-                duration: 0.5,
-                scale: 1,
-                rotation: 0,
-                ease: "power2.out"
-            });
-        });
-    }
-    
-    // Enhanced button interactions
-    const enhancedButtons = document.querySelectorAll('.cta-button-enhanced');
+    // Simplified button and card interactions
+    const enhancedButtons = document.querySelectorAll('.cta-button-enhanced, .cta-button');
     enhancedButtons.forEach(button => {
         button.addEventListener('mouseenter', function() {
-            gsap.to(this, {
-                duration: 0.3,
-                scale: 1.05,
-                ease: "back.out(1.7)"
-            });
-            
-            gsap.to(this.querySelector('i'), {
-                duration: 0.3,
-                x: 5,
-                ease: "power2.out"
-            });
+            if (typeof gsap !== 'undefined') {
+                gsap.to(this, {
+                    duration: 0.2,
+                    scale: 1.02,
+                    ease: "power2.out"
+                });
+            }
         });
         
         button.addEventListener('mouseleave', function() {
-            gsap.to(this, {
-                duration: 0.3,
-                scale: 1,
-                ease: "power2.out"
-            });
-            
-            gsap.to(this.querySelector('i'), {
-                duration: 0.3,
-                x: 0,
-                ease: "power2.out"
-            });
-        });
-    });
-    
-    // Research card hover effects
-    const researchCards = document.querySelectorAll('.research-card-minimal');
-    researchCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            gsap.to(this, {
-                duration: 0.3,
-                x: 15,
-                scale: 1.02,
-                ease: "power2.out"
-            });
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            gsap.to(this, {
-                duration: 0.3,
-                x: 0,
-                scale: 1,
-                ease: "power2.out"
-            });
-        });
-    });
-    
-    // Stats counter animation
-    const statNumbers = document.querySelectorAll('.stat-number');
-    statNumbers.forEach(stat => {
-        ScrollTrigger.create({
-            trigger: stat,
-            start: 'top 80%',
-            onEnter: () => {
-                const finalValue = stat.textContent;
-                const numericValue = parseInt(finalValue.replace(/\D/g, ''));
-                
-                if (!isNaN(numericValue)) {
-                    const counter = { value: 0 };
-                    gsap.to(counter, {
-                        duration: 2,
-                        value: numericValue,
-                        ease: "power2.out",
-                        onUpdate: function() {
-                            const currentValue = Math.round(counter.value);
-                            stat.textContent = finalValue.includes('+') ? `${currentValue}+` : currentValue;
-                        }
-                    });
-                }
+            if (typeof gsap !== 'undefined') {
+                gsap.to(this, {
+                    duration: 0.2,
+                    scale: 1,
+                    ease: "power2.out"
+                });
             }
         });
     });
@@ -379,55 +266,10 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollIndicator.addEventListener('click', function() {
             const nextSection = document.querySelector('.research-enhanced');
             if (nextSection) {
-                gsap.to(window, {
-                    duration: 1.5,
-                    scrollTo: nextSection,
-                    ease: "power2.inOut"
+                nextSection.scrollIntoView({ 
+                    behavior: 'smooth' 
                 });
             }
-        });
-    }
-    
-    // Custom cursor effects
-    const cursor = document.getElementById('cursorGlow');
-    const cursorTrail = document.getElementById('cursorTrail');
-    
-    if (cursor && cursorTrail) {
-        let mouseX = 0, mouseY = 0;
-        let trailX = 0, trailY = 0;
-        
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            cursor.style.left = mouseX - 100 + 'px';
-            cursor.style.top = mouseY - 100 + 'px';
-        });
-        
-        // Smooth trail animation
-        function animateTrail() {
-            trailX += (mouseX - trailX) * 0.15;
-            trailY += (mouseY - trailY) * 0.15;
-            
-            cursorTrail.style.left = trailX - 4 + 'px';
-            cursorTrail.style.top = trailY - 4 + 'px';
-            
-            requestAnimationFrame(animateTrail);
-        }
-        animateTrail();
-        
-        // Enhanced cursor effects on hover
-        const interactiveElements = document.querySelectorAll('a, button, .research-card-minimal, .cta-button-enhanced, .feature-highlight, .hero-main-image, .research-side-image, .vision-accent-image');
-        interactiveElements.forEach(element => {
-            element.addEventListener('mouseenter', () => {
-                cursor.style.transform = 'scale(1.8)';
-                cursor.style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 50%)';
-            });
-            
-            element.addEventListener('mouseleave', () => {
-                cursor.style.transform = 'scale(1)';
-                cursor.style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 50%)';
-            });
         });
     }
     
@@ -436,18 +278,17 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(function() {
-            ScrollTrigger.refresh();
+            if (typeof ScrollTrigger !== 'undefined') {
+                ScrollTrigger.refresh();
+            }
             updateParallax();
         }, 250);
     });
     
     // Preload images for better performance
     const imagesToPreload = [
-        'assets/background_1.png',
-        'assets/background_2.jpg',
-        'assets/dark_theme_background.jpg',
-        'assets/background_removed/Leonardo_Vision_XL_bg_removed.png',
         'assets/background_removed/beautiful-scenery-bg_removed.png',
+        'assets/background_removed/Leonardo_Vision_XL_bg_removed.png',
         'assets/background_removed/bg_cover_bg_removed.png'
     ];
     
@@ -460,8 +301,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('🖼️ All images preloaded successfully!');
             }
         };
-        img.onerror = () => {
-            console.warn(`⚠️ Failed to load image: ${src}`);
+        img.onerror = (error) => {
+            console.warn(`⚠️ Failed to load image: ${src}`, error);
+            loadedImages++; // Count as loaded to prevent blocking
         };
         img.src = src;
     });
@@ -472,19 +314,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Initial animations after load
         gsap.from('body', {
-            duration: 0.8,
-            opacity: 0,
+            duration: 0.5,
+            opacity: 0.8,
             ease: "power2.out"
         });
     });
     
-    // Fallback to show content after 3 seconds even if images don't load
-    setTimeout(function() {
-        if (!document.body.classList.contains('loaded')) {
-            document.body.classList.add('loaded');
-            console.log('⚠️ Forced page load after timeout');
-        }
-    }, 3000);
+    // Show content immediately instead of waiting for timeout
+    document.body.classList.add('loaded');
     
     console.log('🚀 Enhanced Parallax effects initialized successfully!');
 });
@@ -497,7 +334,7 @@ style.textContent = `
     }
     
     body:not(.loaded) {
-        opacity: 0;
+        opacity: 1;
     }
     
     .loaded {

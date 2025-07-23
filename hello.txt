@@ -30,3 +30,12 @@ https://prismic.io/blog/css-hover-effects:
 
 https://freefrontend.com/css-parallax/:
 
+
+
+
+codepen:
+
+https://codepen.io/VoXelo/pen/EaabxLj
+
+https://codepen.io/isladjan/pen/abdyPBw
+
